@@ -14,4 +14,18 @@ jobs:
       needs: [inicio]
       steps:
         - name: texto
-          run: echo "Counstruir"
+          run: echo "Construir"
+        
+    test:
+      runs-on: windows-latest
+      needs: [bluid]
+      steps:
+        - name: texto
+          run: echo "Construir"
+          
+    deploy:
+      runs-on: windows-latest
+      needs: [test]
+      steps:
+        - name: texto
+          run: echo "Construir"
