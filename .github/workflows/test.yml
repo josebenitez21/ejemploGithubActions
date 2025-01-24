@@ -3,48 +3,69 @@ name: Ejemplo CI/CD
 on: [push]
 
 jobs:
-    inicio:
-      runs-on: windows-latest
-      steps:
-        - name: mostrar texto
-          run: echo "Paso para clonar el repositorio a GitHub Actions"
-        - name: Clonar repositorio
-          uses: actions/checkout@v4.2.2
+  inicio:
+    runs-on: windows-latest
+    steps:
+      - name: mostrar texto
+        run: echo "Paso para clonar el repositorio a GitHub Actions"
+      - name: Clonar repositorio
+        uses: actions/checkout@v4.2.2
 
-    build:
-      runs-on: windows-latest
-      needs: [inicio]
-      steps:
-        - name: texto
-          run: echo "Construir"
-        - name: Instalar PHP y Composer
-          run: |
-            choco install php --version=8.1 -y
-            choco install composer -y
-            php --version
-            composer --version
-        - name: Instalar MySQL
-          run: |
-            # Instalar MySQL
-            choco install mysql --version=8.0.27 -y
-            Start-Service mysql
-            # Configurar usuario root y método de autenticación
-            mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
-            mysql -u root -proot -e "CREATE DATABASE lumen_db;"
-        - name: Verificar MySQL
-          run: |
-            mysql -u root -proot -e "SHOW DATABASES;"
+  build:
+    runs-on: windows-latest
+    needs: [inicio]
+    steps:
+      - name: texto
+        run: echo "Construir"
+      - name: Instalar PHP y Composer
+        run: |
+          choco install php --version=8.1 -y
+          choco install composer -y
+          php --version
+          composer --version
+      - name: Instalar MySQL
+        run: |
+          # Instalar MySQL
+          choco install mysql --version=8.0.27 -y
+          Start-Service mysql
+          # Configurar usuario root y método de autenticación
+          mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
+          mysql -u root -proot -e "CREATE DATABASE lumen_db;"
+      - name: Verificar MySQL
+        run: |
+          mysql -u root -proot -e "SHOW DATABASES;"
+      - name: 📦 Instalar dependencias de Laravel Lumen
+        run: |
+          composer install --no-interaction --prefer-dist --no-scripts --no-progress
+          if (Test-Path .env.example) { Copy-Item .env.example .env } else { New-Item .env -ItemType File }
+          echo "APP_KEY=base64:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" | Out-File -Append .env
+      - name: ⚡ Ejecutar migraciones y seeders
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: lumen_db
+          DB_USERNAME: root
+          DB_PASSWORD: root
+        run: |
+          if (Test-Path artisan) {
+            php artisan migrate --force
+            php artisan db:seed --force
+          } else {
+            echo "⚠️ Archivo artisan no encontrado"
+            exit 1
+          }
 
-    test:
-      runs-on: windows-latest
-      needs: [build]
-      steps:
-        - name: texto
-          run: echo "Pruebas completadas"
+  test:
+    runs-on: windows-latest
+    needs: [build]
+    steps:
+      - name: texto
+        run: echo "Pruebas completadas"
 
-    deploy:
-      runs-on: windows-latest
-      needs: [test]
-      steps:
-        - name: texto
-          run: echo "Despliegue completado"
+  deploy:
+    runs-on: windows-latest
+    needs: [test]
+    steps:
+      - name: texto
+        run: echo "Despliegue completado"
