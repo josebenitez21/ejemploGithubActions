@@ -1,11 +1,17 @@
-name: Ejemplo CI/CD
+name: Ejemplo CI/CD 
 
 on: [push]
 
 jobs:
-  inicio:
-    runs-on: windows-latest
-    # Pasos
-    steps:
-      - name: mostrar_texto
-        run: echo "Hola mundo"
+    inicio:
+      runs-on: windows-latest
+      #Pasos:
+      steps:
+        - name: mostrar texto
+          run: echo "Hola mundo"
+    bluid:
+      runs-on: windows-latest
+      needs: [inicio]
+      steps:
+        - name: texto
+          run: echo "Counstruir"
