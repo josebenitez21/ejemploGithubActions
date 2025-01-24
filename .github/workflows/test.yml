@@ -11,16 +11,22 @@ jobs:
           run: echo "Paso para clonar el repositorio a github actions"
         - name: Clonar repositorio
           uses: actions/checkout@v4.2.2
-    bluid:
+    build:
       runs-on: windows-latest
       needs: [inicio]
       steps:
         - name: texto
           run: echo "Construir"
+        - name: instalar PHP y composer
+          run: |
+            choco install php --version=8.1
+            choco install composer
+            php --v
+            composer --version
         
     test:
       runs-on: windows-latest
-      needs: [bluid]
+      needs: [build]
       steps:
         - name: texto
           run: echo "Construir"
