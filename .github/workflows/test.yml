@@ -23,6 +23,10 @@ jobs:
             choco install composer
             php --v
             composer --version
+        - name: instalar MySQL
+          run: |
+            choco install mysql --version=8.0
+            mysql --version 
         
     test:
       runs-on: windows-latest
